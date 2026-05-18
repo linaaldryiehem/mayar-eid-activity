@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mayar Eid Activity 🎡</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9fdf9;color:#1a1a18;min-height:100vh}
+input{width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:8px;font-size:13px;background:#fff;color:#1a1a18;outline:none;margin:5px 0;box-sizing:border-box;font-family:inherit}
+input:focus{border-color:#1D9E75}
+button{cursor:pointer;font-family:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid #ccc;background:#fff;color:#1a1a18;transition:background .12s}
+.btn:hover:not(:disabled){background:#f0f0ee}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-p{background:#1D9E75!important;color:#fff!important;border-color:#1D9E75!important}
+.btn-p:hover:not(:disabled){background:#0F6E56!important}
+.btn-d{background:#E24B4A!important;color:#fff!important;border-color:#E24B4A!important}
+.card{background:#fff;border:1px solid #e0e0dc;border-radius:12px;padding:1rem 1.125rem;margin-bottom:1rem}
+.page{display:none;min-height:100vh}
+.page.active{display:block}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #e0e0dc;padding-bottom:10px;margin-bottom:20px}
+.tab{padding:5px 12px;border-radius:7px;font-size:12px;border:1px solid #e0e0dc;background:transparent;color:#666;cursor:pointer;font-family:inherit}
+.tab.active{background:#1D9E75;color:#fff;border-color:#1D9E75;font-weight:500}
+.atab{display:none}
+.atab.active{display:block}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.sc{background:#f5f5f3;border-radius:8px;padding:12px;text-align:center}
+.sc .v{font-size:24px;font-weight:500}
+.sc .l{font-size:11px;color:#666;margin-top:2px}
+.namegrid{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow-y:auto;margin:8px 0}
+.nametag{background:#f5f5f3;border:1px solid #e0e0dc;border-radius:99px;padding:3px 11px;font-size:12px}
+.nametag.won{background:#EAF3DE;border-color:#1D9E75;color:#27500A}
+.prow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.prow input{flex:1;margin:0}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.35)}
+.prize-display{border-radius:12px;padding:1.5rem 1rem;margin-bottom:20px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .4s;background:#f5f5f3;border:2px solid #e0e0dc}
+.prize-display.done{background:#EAF3DE;border-color:#1D9E75}
+</style>
+</head>
+<body>
+
+<!-- PARTICIPANT PAGE -->
+<div id="page-join" class="page active">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.25rem">
+    <div style="width:100%;max-width:400px">
+      <div style="text-align:center;margin-bottom:32px">
+        <div style="font-size:64px;margin-bottom:12px">🎡</div>
+        <div style="font-size:26px;font-weight:600;margin-bottom:6px">Mayar Eid Activity</div>
+        <div id="join-subtitle" style="font-size:15px;color:#666;line-height:1.5">Enter your name to join the prize wheel!</div>
+      </div>
+
+      <div id="draw-closed-box" style="display:none;text-align:center">
+        <div id="draw-closed-inner" class="card" style="border-radius:16px;padding:2rem 1.5rem"></div>
+      </div>
+
+      <div id="join-form-wrap">
+        <div id="join-flash" style="display:none;background:#EAF3DE;border:1px solid #9FE1CB;border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:24px">✅</span>
+          <div>
+            <div id="join-flash-name" style="font-size:15px;font-weight:600;color:#27500A"></div>
+            <div style="font-size:12px;color:#3B6D11;margin-top:2px">Good luck — the draw is about to begin 🤞</div>
+          </div>
+        </div>
+        <div class="card" style="border-radius:16px;padding:1.5rem;box-shadow:0 4px 24px rgba(0,0,0,.06)">
+          <label style="font-size:13px;color:#666;font-weight:500">Your full name</label>
+          <input id="join-name" type="text" placeholder="e.g. Sara Ahmed" maxlength="40" style="font-size:15px;padding:12px 14px;margin-top:8px;border-radius:10px" />
+          <div id="join-err" style="font-size:12px;color:#E24B4A;min-height:16px;margin:4px 0 10px"></div>
+          <button class="btn btn-p" style="width:100%;padding:13px;font-size:15px;border-radius:10px;font-weight:600" onclick="joinWheel()">Add me to the wheel! 🎉</button>
+        </div>
+        <div id="join-count" style="text-align:center;margin-top:16px;font-size:13px;color:#888"></div>
+      </div>
+
+      <div style="text-align:center;margin-top:48px">
+        <span onclick="goAdmin()" style="font-size:12px;color:#bbb;cursor:pointer;border-bottom:1px solid #e0e0dc;padding-bottom:1px">Admin access</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="page-login" class="page">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f5f3;padding:1.5rem">
+    <div style="width:100%;max-width:360px">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:40px;margin-bottom:10px">⚙️</div>
+        <div style="font-size:20px;font-weight:500">Admin panel</div>
+        <div style="font-size:13px;color:#666;margin-top:4px">Enter the password to continue</div>
+      </div>
+      <div class="card">
+        <label style="font-size:12px;color:#666">Password</label>
+        <input type="password" id="admin-pass" placeholder="Password" onkeydown="if(event.key==='Enter')checkPass()" />
+        <div id="pass-err" style="font-size:12px;color:#E24B4A;min-height:16px;margin-bottom:6px"></div>
+        <button class="btn btn-p" style="width:100%;padding:10px" onclick="checkPass()">Sign in</button>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <span onclick="showPage('page-join')" style="font-size:12px;color:#aaa;cursor:pointer">← Back to join page</span>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:12px;color:#aaa">Default: <code>mayar2024</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="page-admin" class="page" style="background:#f5f5f3">
+  <div style="background:#fff;border-bottom:1px solid #e0e0dc;padding:0 1.25rem;position:sticky;top:0;z-index:10">
+    <div style="max-width:700px;margin:0 auto;display:flex;align-items:center;gap:8px;height:52px;overflow-x:auto">
+      <span id="back-btn" onclick="adminBack()" style="font-size:12px;color:#aaa;cursor:pointer;white-space:nowrap;margin-right:4px">← Join</span>
+      <div style="height:16px;width:1px;background:#e0e0dc;flex-shrink:0"></div>
+      <div class="tabs" style="border:none;padding:0;margin:0;flex-wrap:nowrap">
+        <button class="tab active" onclick="aTab(this,'at-participants')">Participants</button>
+        <button class="tab" onclick="aTab(this,'at-prizes')">Prizes</button>
+        <button class="tab" onclick="aTab(this,'at-wheel')">Wheel</button>
+        <button class="tab" onclick="aTab(this,'at-settings')">Settings</button>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:700px;margin:0 auto;padding:1.25rem">
+
+    <!-- Participants tab -->
+    <div id="at-participants" class="atab active">
+      <div class="sg">
+        <div class="sc"><div class="v" id="st-total">0</div><div class="l">Registered</div></div>
+        <div class="sc"><div class="v" id="st-min">3</div><div class="l">Min to spin</div></div>
+        <div class="sc"><div class="v" id="st-winners">15</div><div class="l">Winners</div></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <strong style="font-size:13px">Registered names</strong>
+          <div id="clear-wrap">
+            <button class="btn btn-d" style="font-size:11px;padding:4px 10px" onclick="startClear()">Clear all</button>
+          </div>
+        </div>
+        <div id="name-grid" class="namegrid"></div>
+        <div id="no-names" style="font-size:12px;color:#888">No participants yet</div>
+      </div>
+      <strong style="font-size:13px">Add a participant</strong>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="add-name" placeholder="Name" style="margin:0" onkeydown="if(event.key==='Enter')addParticipant()" />
+        <button class="btn" onclick="addParticipant()">Add</button>
+      </div>
+    </div>
+
+    <!-- Prizes tab -->
+    <div id="at-prizes" class="atab">
+      <div class="card">
+        <strong style="font-size:13px;display:block;margin-bottom:4px">Prize list</strong>
+        <div style="font-size:12px;color:#666;margin-bottom:14px">Each prize can only be won once.</div>
+        <div id="prize-rows"></div>
+        <button class="btn" style="margin-top:8px;font-size:12px" onclick="addPrizeRow()">+ Add prize</button>
+      </div>
+      <button class="btn btn-p" onclick="savePrizes()">Save prizes</button>
+      <span id="prize-saved" style="font-size:12px;color:#1D9E75;margin-left:10px"></span>
+    </div>
+
+    <!-- Wheel tab -->
+    <div id="at-wheel" class="atab">
+      <div id="wheel-status" class="card"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:8px">
+        <canvas id="main-wheel" width="300" height="300" style="border-radius:50%;display:block"></canvas>
+        <button id="spin-btn" class="btn btn-p" style="padding:12px 28px;font-size:15px" onclick="doSpin()">🎡 Spin!</button>
+        <div id="spin-msg" style="font-size:15px;color:#1D9E75;font-weight:500;min-height:22px;text-align:center"></div>
+      </div>
+      <div id="results-wrap" style="display:none;margin-top:24px">
+        <div style="font-size:15px;font-weight:500;margin-bottom:10px">Results so far</div>
+        <div id="results-list"></div>
+      </div>
+    </div>
+
+    <!-- Settings tab -->
+    <div id="at-settings" class="atab">
+      <div class="card">
+        <strong style="font-size:13px;display:block;margin-bottom:14px">Settings</strong>
+        <label style="font-size:12px;color:#666">Min participants to enable spin</label>
+        <input id="cfg-min" placeholder="3" />
+        <label style="font-size:12px;color:#666">Number of winners</label>
+        <input id="cfg-win" placeholder="15" />
+        <label style="font-size:12px;color:#666">Admin password</label>
+        <input type="password" id="cfg-pass" placeholder="New password" />
+        <button class="btn btn-p" style="margin-top:6px" onclick="saveSettings()">Save settings</button>
+        <span id="cfg-saved" style="font-size:12px;color:#1D9E75;margin-left:10px"></span>
+      </div>
+      <div class="card">
+        <strong style="font-size:13px;display:block;margin-bottom:10px">QR code instructions</strong>
+        <ol style="font-size:13px;color:#666;padding-left:20px;line-height:2.2">
+          <li>Host this HTML file (e.g. upload to <strong>netlify.com/drop</strong>)</li>
+          <li>Copy the URL you get</li>
+          <li>Go to <strong>qr.io</strong> or <strong>qrcode-monkey.com</strong></li>
+          <li>Paste and generate — participants land on the join page</li>
+          <li>Bookmark <strong>yoururl.com/?admin</strong> for yourself</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PRIZE MODAL -->
+<div id="prize-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div style="font-size:13px;color:#888;margin-bottom:4px">🎉 Winner!</div>
+    <div id="modal-winner" style="font-size:22px;font-weight:600;margin-bottom:24px"></div>
+    <div id="prize-display" class="prize-display">
+      <div id="prize-display-inner" style="font-size:14px;color:#aaa">Your prize is waiting…</div>
+    </div>
+    <div id="prizes-remaining" style="font-size:12px;color:#888;margin-bottom:16px;display:none"></div>
+    <button id="modal-btn" class="btn btn-p" style="width:100%;padding:12px;font-size:15px;border-radius:10px" onclick="modalAction()">🎰 Reveal my prize!</button>
+  </div>
+</div>
+
+<!-- EXIT CONFIRM MODAL -->
+<div id="exit-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div style="font-size:24px;margin-bottom:10px">⚠️</div>
+    <div style="font-size:15px;font-weight:500;margin-bottom:8px">Leave admin panel?</div>
+    <div id="exit-modal-msg" style="font-size:13px;color:#666;margin-bottom:20px"></div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-d" style="font-size:13px" onclick="confirmExit()">Leave anyway</button>
+      <button class="btn btn-p" style="font-size:13px" onclick="cancelExit()">Stay here</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = 'mayar_eid_v5';
+const WC  = ['#1D9E75','#BA7517','#185FA5','#993556','#3B6D11','#533AB7','#D85A30','#0F6E56','#854F0B','#A32D2D','#5DCAA5','#EF9F27','#378ADD','#D4537E','#639922'];
+
+let S = {
+  participants: [], winners: [], prizeResults: {},
+  settings: { min: 3, numWinners: 15, adminPass: 'mayar2024' },
+  prizes: Array.from({length:15},(_,i)=>`Prize ${i+1} 🎁`)
+};
+
+function lsLoad() { try { const d=localStorage.getItem(KEY); if(d) S={...S,...JSON.parse(d)}; } catch(e){} }
+function lsSave() { try { localStorage.setItem(KEY,JSON.stringify(S)); } catch(e){} }
+
+// ── Navigation ─────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id==='page-join')  renderJoinPage();
+  if (id==='page-admin') renderAdmin();
+}
+
+function goAdmin() { showPage('page-login'); document.getElementById('admin-pass').value=''; document.getElementById('pass-err').textContent=''; }
+
+function checkPass() {
+  const p = document.getElementById('admin-pass').value;
+  if (p===S.settings.adminPass) { showPage('page-admin'); }
+  else document.getElementById('pass-err').textContent='Incorrect password';
+}
+
+function adminBack() {
+  const active = S.winners.length > 0 && S.winners.length < S.settings.numWinners;
+  if (active) {
+    document.getElementById('exit-modal-msg').textContent = `The draw is in progress — ${S.winners.length} winner${S.winners.length!==1?'s':''} picked so far. Progress is saved.`;
+    document.getElementById('exit-modal').classList.add('open');
+  } else {
+    showPage('page-join');
+  }
+}
+function confirmExit() { document.getElementById('exit-modal').classList.remove('open'); showPage('page-join'); }
+function cancelExit()  { document.getElementById('exit-modal').classList.remove('open'); }
+
+function aTab(btn, id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+  if (id==='at-prizes') renderPrizeRows();
+  if (id==='at-wheel')  renderWheelTab();
+  if (id==='at-settings') {
+    document.getElementById('cfg-min').value = S.settings.min;
+    document.getElementById('cfg-win').value = S.settings.numWinners;
+  }
+}
+
+// ── Join page ──────────────────────────────────────────
+function renderJoinPage() {
+  const started = S.winners.length > 0;
+  const done    = S.winners.length >= S.settings.numWinners;
+  document.getElementById('join-form-wrap').style.display = started ? 'none' : '';
+  document.getElementById('draw-closed-box').style.display = started ? '' : 'none';
+  if (started) {
+    document.getElementById('draw-closed-inner').innerHTML = `
+      <div style="font-size:36px;margin-bottom:12px">${done?'🏆':'🔒'}</div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:8px">${done?'Draw complete!':'Draw in progress'}</div>
+      <div style="font-size:14px;color:#666;line-height:1.6">${done?`All ${S.settings.numWinners} winners have been picked.`:'Registration is closed — the draw has already started!'}</div>
+      <div style="margin-top:12px;font-size:13px;color:#888">${S.participants.length} people registered</div>`;
+  }
+  updateJoinCount();
+}
+
+function updateJoinCount() {
+  const c = S.participants.length;
+  document.getElementById('join-count').innerHTML = c>0 ? `<strong style="color:#1D9E75">${c}</strong> ${c===1?'person has':'people have'} joined so far` : 'Be the first to join!';
+}
+
+function joinWheel() {
+  if (S.winners.length > 0) return;
+  const inp  = document.getElementById('join-name');
+  const name = inp.value.trim();
+  const err  = document.getElementById('join-err');
+  if (!name) { err.textContent='Please enter your name'; return; }
+  if (S.participants.map(n=>n.toLowerCase()).includes(name.toLowerCase())) { err.textContent="You're already on the wheel! 🎡"; return; }
+  err.textContent='';
+  S.participants.push(name); lsSave();
+  inp.value='';
+  const flash = document.getElementById('join-flash');
+  document.getElementById('join-flash-name').textContent = name+' is on the wheel!';
+  flash.style.display='flex';
+  setTimeout(()=>{ flash.style.display='none'; },3000);
+  updateJoinCount();
+}
+document.getElementById('join-name').addEventListener('keydown', e=>{ if(e.key==='Enter') joinWheel(); });
+
+// ── Admin: Participants ────────────────────────────────
+function renderAdmin() {
+  document.getElementById('st-total').textContent   = S.participants.length;
+  document.getElementById('st-min').textContent     = S.settings.min;
+  document.getElementById('st-winners').textContent = S.settings.numWinners;
+  const grid = document.getElementById('name-grid');
+  const nope = document.getElementById('no-names');
+  if (!S.participants.length) { grid.innerHTML=''; nope.style.display=''; return; }
+  nope.style.display='none';
+  grid.innerHTML = S.participants.map(n=>{
+    const won = S.winners.includes(n);
+    return `<span class="nametag${won?' won':''}">${n}${won?' ✓':''}</span>`;
+  }).join('');
+}
+
+function addParticipant() {
+  const inp = document.getElementById('add-name');
+  const n   = inp.value.trim();
+  if (!n || S.participants.map(x=>x.toLowerCase()).includes(n.toLowerCase())) return;
+  S.participants.push(n); lsSave(); inp.value=''; renderAdmin();
+}
+
+let clearConfirming = false;
+function startClear() {
+  if (!clearConfirming) {
+    clearConfirming = true;
+    document.getElementById('clear-wrap').innerHTML = `
+      <span style="font-size:12px;color:#666;margin-right:6px">Are you sure?</span>
+      <button class="btn btn-d" style="font-size:11px;padding:4px 10px;margin-right:4px" onclick="doClear()">Yes, clear</button>
+      <button class="btn" style="font-size:11px;padding:4px 10px" onclick="cancelClear()">Cancel</button>`;
+  }
+}
+function doClear() {
+  S.participants=[]; S.winners=[]; S.prizeResults={};
+  lsSave(); clearConfirming=false;
+  document.getElementById('clear-wrap').innerHTML = `<button class="btn btn-d" style="font-size:11px;padding:4px 10px" onclick="startClear()">Clear all</button>`;
+  renderAdmin();
+  // Also reset wheel tab visuals
+  document.getElementById('results-wrap').style.display='none';
+  document.getElementById('results-list').innerHTML='';
+  document.getElementById('spin-msg').textContent='';
+  renderWheelTab();
+}
+function cancelClear() {
+  clearConfirming=false;
+  document.getElementById('clear-wrap').innerHTML = `<button class="btn btn-d" style="font-size:11px;padding:4px 10px" onclick="startClear()">Clear all</button>`;
+}
+
+// ── Admin: Prizes ──────────────────────────────────────
+function renderPrizeRows() {
+  document.getElementById('prize-rows').innerHTML = S.prizes.map((p,i)=>`
+    <div class="prow">
+      <span style="font-size:12px;color:#888;min-width:22px">${i+1}.</span>
+      <input type="text" id="pi-${i}" value="${p.replace(/"/g,'&quot;')}" style="margin:0" />
+      <button class="btn" style="padding:5px 10px;font-size:12px" onclick="removePrize(${i})">✕</button>
+    </div>`).join('');
+}
+function addPrizeRow() { S.prizes.push('New Prize 🎁'); renderPrizeRows(); }
+function removePrize(i) { S.prizes.splice(i,1); renderPrizeRows(); }
+function savePrizes() {
+  S.prizes = S.prizes.map((_,i)=>document.getElementById(`pi-${i}`).value.trim()).filter(Boolean);
+  lsSave();
+  const m=document.getElementById('prize-saved'); m.textContent='Saved!'; setTimeout(()=>m.textContent='',2000);
+}
+
+// ── Admin: Settings ────────────────────────────────────
+function saveSettings() {
+  S.settings.min         = parseInt(document.getElementById('cfg-min').value)||3;
+  S.settings.numWinners  = parseInt(document.getElementById('cfg-win').value)||15;
+  const p = document.getElementById('cfg-pass').value;
+  if (p) S.settings.adminPass=p;
+  lsSave(); renderAdmin();
+  const m=document.getElementById('cfg-saved'); m.textContent='Saved!'; setTimeout(()=>m.textContent='',2000);
+}
+
+// ── Wheel drawing ──────────────────────────────────────
+let wheelAngle = 0, idleRaf = null, isSpinning = false;
+
+function drawWheel(names) {
+  const canvas = document.getElementById('main-wheel');
+  if (!canvas || !names.length) return;
+  const ctx=canvas.getContext('2d'), sz=canvas.width, cx=sz/2, cy=sz/2, r=sz/2-4;
+  const sl=(2*Math.PI)/names.length;
+  ctx.clearRect(0,0,sz,sz);
+  names.forEach((n,i)=>{
+    const s=wheelAngle+i*sl, e=s+sl;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,s,e);
+    ctx.fillStyle=WC[i%WC.length]; ctx.fill();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(s+sl/2);
+    ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='500 11px sans-serif';
+    ctx.fillText(n.length>13?n.slice(0,12)+'…':n, r-8, 4);
+    ctx.restore();
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,20,0,2*Math.PI); ctx.fillStyle='#fff'; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(cx+r+6,cy-10); ctx.lineTo(cx+r+22,cy); ctx.lineTo(cx+r+6,cy+10);
+  ctx.fillStyle='#E24B4A'; ctx.fill();
+}
+
+function getPool() { return S.participants.filter(n=>!S.winners.includes(n)); }
+
+function startIdleSpin() {
+  if (idleRaf) cancelAnimationFrame(idleRaf);
+  function loop() {
+    if (isSpinning) return;
+    wheelAngle += 0.004;
+    drawWheel(getPool().length ? getPool() : (S.participants.length ? ['All done!'] : ['Waiting…']));
+    idleRaf = requestAnimationFrame(loop);
+  }
+  idleRaf = requestAnimationFrame(loop);
+}
+
+function renderWheelTab() {
+  const tot   = S.participants.length;
+  const min   = S.settings.min;
+  const numW  = S.settings.numWinners;
+  const ready = tot >= min;
+  const done  = S.winners.length >= numW;
+  const rem   = S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
+
+  document.getElementById('wheel-status').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <strong style="font-size:13px">${done?'✅ All winners picked!':ready?'✅ Ready to spin!':'⏳ Waiting for participants'}</strong>
+        <div style="font-size:12px;color:#666;margin-top:4px">${tot} registered · ${S.winners.length}/${numW} winners · ${rem.length} prizes left</div>
+      </div>
+      <span style="padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;background:${ready?'#EAF3DE':'#FAEEDA'};color:${ready?'#3B6D11':'#854F0B'}">${ready?'Ready':`Need ${min-tot} more`}</span>
+    </div>`;
+
+  const spinBtn = document.getElementById('spin-btn');
+  spinBtn.disabled = !ready || isSpinning || done;
+  spinBtn.textContent = done ? '✅ All done' : `🎡 Spin (${S.winners.length}/${numW})`;
+
+  // Results
+  if (S.winners.length > 0) {
+    document.getElementById('results-wrap').style.display='';
+    document.getElementById('results-list').innerHTML = S.winners.map((w,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:#f5f5f3;border-radius:8px">
+        <span style="font-size:12px;color:#888;min-width:22px">${i+1}.</span>
+        <span style="font-size:13px;font-weight:500;flex:1">${w}</span>
+        <span style="background:#EAF3DE;color:#27500A;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:500">${S.prizeResults[w]||'⏳'}</span>
+      </div>`).join('');
+  }
+
+  startIdleSpin();
+}
+
+// ── Spin ───────────────────────────────────────────────
+function doSpin() {
+  if (isSpinning) return;
+  const pool = getPool();
+  if (!pool.length) return;
+  if (idleRaf) { cancelAnimationFrame(idleRaf); idleRaf=null; }
+
+  isSpinning = true;
+  document.getElementById('spin-btn').disabled = true;
+  document.getElementById('spin-msg').textContent = '';
+
+  const wi     = Math.floor(Math.random() * pool.length);
+  const winner = pool[wi];
+  const sl     = (2*Math.PI) / pool.length;
+
+  // Land winner slice centre under right-hand pointer (angle 0)
+  const fullSpins    = (8 + Math.floor(Math.random()*4)) * 2*Math.PI;
+  const targetOffset = -(wi*sl + sl/2);
+  const finalAngle   = wheelAngle + fullSpins + ((targetOffset - wheelAngle) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+
+  const names = [...pool];
+  let t0 = null;
+  (function tick(ts) {
+    if (!t0) t0=ts;
+    const p    = Math.min((ts-t0)/4500, 1);
+    const ease = 1 - Math.pow(1-p, 4);
+    wheelAngle = wheelAngle + ease*(finalAngle-wheelAngle);
+    // recalculate each frame from the start to avoid drift
+    const cur = wheelAngle + ease*(finalAngle-wheelAngle);
+    drawWheel(names);
+    if (p < 1) { requestAnimationFrame(tick); return; }
+
+    wheelAngle  = finalAngle;
+    isSpinning  = false;
+    document.getElementById('spin-msg').textContent = `🎉 ${winner} is a winner!`;
+
+    // Add winner to state immediately
+    S.winners.push(winner); lsSave();
+
+    // Open prize modal
+    openPrizeModal(winner);
+  })(performance.now());
+}
+
+// ── Prize modal ────────────────────────────────────────
+let prizePhase = 'ready', prizeResult = null, prizeWinner = '';
+
+function openPrizeModal(winner) {
+  prizePhase  = 'ready';
+  prizeResult = null;
+  prizeWinner = winner;
+  document.getElementById('modal-winner').textContent = winner;
+  document.getElementById('prize-display').className  = 'prize-display';
+  document.getElementById('prize-display-inner').innerHTML = '<div style="font-size:14px;color:#aaa">Your prize is waiting…</div>';
+  document.getElementById('prizes-remaining').style.display = 'none';
+  document.getElementById('modal-btn').textContent  = '🎰 Reveal my prize!';
+  document.getElementById('modal-btn').disabled     = false;
+  document.getElementById('prize-modal').classList.add('open');
+}
+
+function modalAction() {
+  if (prizePhase === 'ready')   startPrizeSpin();
+  else if (prizePhase === 'done') claimPrize();
+}
+
+function startPrizeSpin() {
+  const remaining = S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
+  if (!remaining.length) return;
+  prizePhase = 'spinning';
+  document.getElementById('modal-btn').disabled   = true;
+  document.getElementById('modal-btn').textContent = 'Shuffling…';
+
+  const picked   = remaining[Math.floor(Math.random()*remaining.length)];
+  const duration = 2800;
+  const start    = performance.now();
+  let lastFlip   = 0;
+
+  (function tick(now) {
+    const elapsed  = now - start;
+    const progress = Math.min(elapsed/duration, 1);
+    const interval = 55 + progress*progress*260;
+    if (now - lastFlip > interval) {
+      lastFlip = now;
+      const shown = progress > 0.9 ? picked : remaining[Math.floor(Math.random()*remaining.length)];
+      document.getElementById('prize-display-inner').innerHTML =
+        `<div style="font-size:11px;color:#888;margin-bottom:6px;letter-spacing:1px">SHUFFLING PRIZES</div>
+         <div style="font-size:17px;font-weight:500;filter:blur(${progress>0.85?'0':'0.8'}px);color:#1a1a18">${shown}</div>`;
+    }
+    if (progress < 1) { requestAnimationFrame(tick); return; }
+
+    prizePhase  = 'done';
+    prizeResult = picked;
+    document.getElementById('prize-display').className = 'prize-display done';
+    document.getElementById('prize-display-inner').innerHTML =
+      `<div style="font-size:11px;color:#1D9E75;margin-bottom:6px;letter-spacing:1px;font-weight:500">YOUR PRIZE</div>
+       <div style="font-size:20px;font-weight:600;color:#27500A">${picked}</div>`;
+    const rem = remaining.length - 1;
+    const remEl = document.getElementById('prizes-remaining');
+    remEl.textContent = `${rem} prize${rem!==1?'s':''} remaining`;
+    remEl.style.display = '';
+    document.getElementById('modal-btn').textContent = 'Claim & continue →';
+    document.getElementById('modal-btn').disabled    = false;
+  })(performance.now());
+}
+
+function claimPrize() {
+  S.prizeResults[prizeWinner] = prizeResult;
+  lsSave();
+  document.getElementById('prize-modal').classList.remove('open');
+  renderWheelTab();
+  renderAdmin();
+}
+
+// ── Cross-tab sync ────────────────────────────────────
+// When another tab writes to localStorage, reload state and refresh UI
+window.addEventListener('storage', function(e) {
+  if (e.key !== KEY) return;
+  lsLoad();
+  // Refresh whichever page is currently visible
+  const activePage = document.querySelector('.page.active');
+  if (!activePage) return;
+  if (activePage.id === 'page-join') {
+    renderJoinPage();
+  } else if (activePage.id === 'page-admin') {
+    renderAdmin();
+    // Also refresh wheel tab if it's active
+    const wheelTab = document.getElementById('at-wheel');
+    if (wheelTab && wheelTab.classList.contains('active')) renderWheelTab();
+  }
+});
+
+// ── Boot ───────────────────────────────────────────────
+lsLoad();
+renderJoinPage();
+
+// Handle ?admin in URL for direct admin access
+if (window.location.search.includes('admin') || window.location.hash.includes('admin')) {
+  showPage('page-login');
+}
+</script>
+</body>
+</html>
