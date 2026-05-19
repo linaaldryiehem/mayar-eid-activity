@@ -38,12 +38,16 @@ button{cursor:pointer;font-family:inherit}
 .modal-box{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.35)}
 .prize-display{border-radius:12px;padding:1.5rem 1rem;margin-bottom:20px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .4s;background:#f5f5f3;border:2px solid #e0e0dc}
 .prize-display.done{background:#EAF3DE;border-color:#1D9E75}
+#setup-banner{background:#fff3cd;border:1px solid #ffc107;border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;color:#856404;display:none}
 </style>
 </head>
 <body>
 
+<!-- Setup screen removed — config hardcoded -->
+<div id="setup-screen" style="display:none"></div>
+
 <!-- PARTICIPANT PAGE -->
-<div id="page-join" class="page active">
+<div id="page-join" class="page">
   <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.25rem">
     <div style="width:100%;max-width:400px">
       <div style="text-align:center;margin-bottom:32px">
@@ -51,13 +55,11 @@ button{cursor:pointer;font-family:inherit}
         <div style="font-size:26px;font-weight:600;margin-bottom:6px">Mayar Eid Activity</div>
         <div id="join-subtitle" style="font-size:15px;color:#666;line-height:1.5">Enter your name to join the prize wheel!</div>
       </div>
-
       <div id="draw-closed-box" style="display:none;text-align:center">
         <div id="draw-closed-inner" class="card" style="border-radius:16px;padding:2rem 1.5rem"></div>
       </div>
-
       <div id="join-form-wrap">
-        <div id="join-flash" style="display:none;background:#EAF3DE;border:1px solid #9FE1CB;border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+        <div id="join-flash" style="display:none;background:#EAF3DE;border:1px solid #9FE1CB;border-radius:14px;padding:14px 18px;margin-bottom:20px;align-items:center;gap:12px">
           <span style="font-size:24px">✅</span>
           <div>
             <div id="join-flash-name" style="font-size:15px;font-weight:600;color:#27500A"></div>
@@ -66,13 +68,12 @@ button{cursor:pointer;font-family:inherit}
         </div>
         <div class="card" style="border-radius:16px;padding:1.5rem;box-shadow:0 4px 24px rgba(0,0,0,.06)">
           <label style="font-size:13px;color:#666;font-weight:500">Your full name</label>
-          <input id="join-name" type="text" placeholder="e.g. Sara Ahmed" maxlength="40" style="font-size:15px;padding:12px 14px;margin-top:8px;border-radius:10px" />
+          <input id="join-name" type="text" placeholder="e.g. Sara Ahmed" maxlength="40" style="font-size:15px;padding:12px 14px;margin-top:8px;border-radius:10px" onkeydown="if(event.key==='Enter')joinWheel()" />
           <div id="join-err" style="font-size:12px;color:#E24B4A;min-height:16px;margin:4px 0 10px"></div>
           <button class="btn btn-p" style="width:100%;padding:13px;font-size:15px;border-radius:10px;font-weight:600" onclick="joinWheel()">Add me to the wheel! 🎉</button>
         </div>
         <div id="join-count" style="text-align:center;margin-top:16px;font-size:13px;color:#888"></div>
       </div>
-
       <div style="text-align:center;margin-top:48px">
         <span onclick="goAdmin()" style="font-size:12px;color:#bbb;cursor:pointer;border-bottom:1px solid #e0e0dc;padding-bottom:1px">Admin access</span>
       </div>
@@ -115,11 +116,11 @@ button{cursor:pointer;font-family:inherit}
         <button class="tab" onclick="aTab(this,'at-wheel')">Wheel</button>
         <button class="tab" onclick="aTab(this,'at-settings')">Settings</button>
       </div>
+      <div id="sync-indicator" style="margin-left:auto;font-size:11px;color:#1D9E75;white-space:nowrap;flex-shrink:0">● live</div>
     </div>
   </div>
   <div style="max-width:700px;margin:0 auto;padding:1.25rem">
 
-    <!-- Participants tab -->
     <div id="at-participants" class="atab active">
       <div class="sg">
         <div class="sc"><div class="v" id="st-total">0</div><div class="l">Registered</div></div>
@@ -143,7 +144,6 @@ button{cursor:pointer;font-family:inherit}
       </div>
     </div>
 
-    <!-- Prizes tab -->
     <div id="at-prizes" class="atab">
       <div class="card">
         <strong style="font-size:13px;display:block;margin-bottom:4px">Prize list</strong>
@@ -155,7 +155,6 @@ button{cursor:pointer;font-family:inherit}
       <span id="prize-saved" style="font-size:12px;color:#1D9E75;margin-left:10px"></span>
     </div>
 
-    <!-- Wheel tab -->
     <div id="at-wheel" class="atab">
       <div id="wheel-status" class="card"></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:8px">
@@ -169,7 +168,6 @@ button{cursor:pointer;font-family:inherit}
       </div>
     </div>
 
-    <!-- Settings tab -->
     <div id="at-settings" class="atab">
       <div class="card">
         <strong style="font-size:13px;display:block;margin-bottom:14px">Settings</strong>
@@ -183,13 +181,20 @@ button{cursor:pointer;font-family:inherit}
         <span id="cfg-saved" style="font-size:12px;color:#1D9E75;margin-left:10px"></span>
       </div>
       <div class="card">
+        <strong style="font-size:13px;display:block;margin-bottom:10px">Firebase config</strong>
+        <div style="font-size:12px;color:#666;margin-bottom:10px">Update your Firebase connection</div>
+        <textarea id="firebase-config-update" placeholder="Paste new config JSON here" style="width:100%;height:100px;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:12px;font-family:monospace;margin:6px 0;resize:vertical"></textarea>
+        <button class="btn btn-p" style="font-size:12px" onclick="updateFirebaseConfig()">Update config</button>
+        <span id="config-update-msg" style="font-size:12px;color:#1D9E75;margin-left:10px"></span>
+      </div>
+      <div class="card">
         <strong style="font-size:13px;display:block;margin-bottom:10px">QR code instructions</strong>
         <ol style="font-size:13px;color:#666;padding-left:20px;line-height:2.2">
-          <li>Host this HTML file (e.g. upload to <strong>netlify.com/drop</strong>)</li>
-          <li>Copy the URL you get</li>
+          <li>Host this file on GitHub Pages</li>
+          <li>Copy your public URL</li>
           <li>Go to <strong>qr.io</strong> or <strong>qrcode-monkey.com</strong></li>
-          <li>Paste and generate — participants land on the join page</li>
-          <li>Bookmark <strong>yoururl.com/?admin</strong> for yourself</li>
+          <li>Paste URL → generate → print</li>
+          <li>Bookmark <strong>yoururl/?admin</strong> for yourself</li>
         </ol>
       </div>
     </div>
@@ -223,20 +228,101 @@ button{cursor:pointer;font-family:inherit}
   </div>
 </div>
 
-<script>
-const KEY = 'mayar_eid_v5';
-const WC  = ['#1D9E75','#BA7517','#185FA5','#993556','#3B6D11','#533AB7','#D85A30','#0F6E56','#854F0B','#A32D2D','#5DCAA5','#EF9F27','#378ADD','#D4537E','#639922'];
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
+<script>
+const LS_CONFIG_KEY = 'mayar_firebase_config';
+const DB_PATH       = 'mayar_eid';
+const WC = ['#1D9E75','#BA7517','#185FA5','#993556','#3B6D11','#533AB7','#D85A30','#0F6E56','#854F0B','#A32D2D','#5DCAA5','#EF9F27','#378ADD','#D4537E','#639922'];
+
+// Default state
 let S = {
   participants: [], winners: [], prizeResults: {},
   settings: { min: 3, numWinners: 15, adminPass: 'mayar2024' },
   prizes: Array.from({length:15},(_,i)=>`Prize ${i+1} 🎁`)
 };
 
-function lsLoad() { try { const d=localStorage.getItem(KEY); if(d) S={...S,...JSON.parse(d)}; } catch(e){} }
-function lsSave() { try { localStorage.setItem(KEY,JSON.stringify(S)); } catch(e){} }
+let db = null;
+let dbRef = null;
 
-// ── Navigation ─────────────────────────────────────────
+// ── Firebase setup ─────────────────────────────────────
+function getStoredConfig() {
+  try { const c=localStorage.getItem(LS_CONFIG_KEY); return c?JSON.parse(c):null; } catch(e){ return null; }
+}
+
+function saveFirebaseConfig() {
+  const raw = document.getElementById('firebase-config-input').value.trim();
+  try {
+    const cfg = JSON.parse(raw);
+    if (!cfg.databaseURL) throw new Error('Missing databaseURL');
+    localStorage.setItem(LS_CONFIG_KEY, JSON.stringify(cfg));
+    initFirebase(cfg);
+  } catch(e) {
+    document.getElementById('config-err').textContent = 'Invalid config: ' + e.message;
+  }
+}
+
+function updateFirebaseConfig() {
+  const raw = document.getElementById('firebase-config-update').value.trim();
+  try {
+    const cfg = JSON.parse(raw);
+    if (!cfg.databaseURL) throw new Error('Missing databaseURL');
+    localStorage.setItem(LS_CONFIG_KEY, JSON.stringify(cfg));
+    location.reload();
+  } catch(e) {
+    document.getElementById('config-update-msg').textContent = 'Error: ' + e.message;
+  }
+}
+
+function initFirebase(cfg) {
+  try {
+    // If already initialised, reuse
+    if (!firebase.apps.length) {
+      firebase.initializeApp(cfg);
+    }
+    db    = firebase.database();
+    dbRef = db.ref(DB_PATH);
+
+    // Listen for any change and update state + UI
+    dbRef.on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        S = { ...S, ...data };
+        S.participants  = Array.isArray(S.participants)  ? S.participants  : [];
+        S.winners       = Array.isArray(S.winners)       ? S.winners       : [];
+        S.prizeResults  = S.prizeResults  && typeof S.prizeResults  === 'object' ? S.prizeResults  : {};
+        S.prizes        = Array.isArray(S.prizes)        ? S.prizes        : Array.from({length:15},(_,i)=>`Prize ${i+1} 🎁`);
+      }
+      // Wait for DOM to be ready before refreshing
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', refreshCurrentPage);
+      } else {
+        refreshCurrentPage();
+      }
+    });
+
+    // Hide setup, show join
+    document.getElementById('setup-screen').classList.remove('active');
+    document.getElementById('setup-screen').style.display = 'none';
+    showPage(getInitialPage());
+  } catch(e) {
+    document.getElementById('config-err').textContent = 'Firebase error: ' + e.message;
+  }
+}
+
+function dbSave() {
+  if (!dbRef) return;
+  dbRef.set(S);
+}
+
+// ── Page routing ───────────────────────────────────────
+function getInitialPage() {
+  if (window.location.search.includes('admin') || window.location.hash.includes('admin')) return 'page-login';
+  return 'page-join';
+}
+
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -248,32 +334,47 @@ function goAdmin() { showPage('page-login'); document.getElementById('admin-pass
 
 function checkPass() {
   const p = document.getElementById('admin-pass').value;
-  if (p===S.settings.adminPass) { showPage('page-admin'); }
+  if (p===S.settings.adminPass) showPage('page-admin');
   else document.getElementById('pass-err').textContent='Incorrect password';
 }
 
 function adminBack() {
-  const active = S.winners.length > 0 && S.winners.length < S.settings.numWinners;
+  const active = S.winners.length>0 && S.winners.length<S.settings.numWinners;
   if (active) {
-    document.getElementById('exit-modal-msg').textContent = `The draw is in progress — ${S.winners.length} winner${S.winners.length!==1?'s':''} picked so far. Progress is saved.`;
+    document.getElementById('exit-modal-msg').textContent=`The draw is in progress — ${S.winners.length} winner${S.winners.length!==1?'s':''} picked so far. Progress is saved.`;
     document.getElementById('exit-modal').classList.add('open');
-  } else {
-    showPage('page-join');
-  }
+  } else showPage('page-join');
 }
-function confirmExit() { document.getElementById('exit-modal').classList.remove('open'); showPage('page-join'); }
-function cancelExit()  { document.getElementById('exit-modal').classList.remove('open'); }
+function confirmExit(){ document.getElementById('exit-modal').classList.remove('open'); showPage('page-join'); }
+function cancelExit() { document.getElementById('exit-modal').classList.remove('open'); }
 
-function aTab(btn, id) {
+function aTab(btn,id) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById(id).classList.add('active');
-  if (id==='at-prizes') renderPrizeRows();
-  if (id==='at-wheel')  renderWheelTab();
-  if (id==='at-settings') {
-    document.getElementById('cfg-min').value = S.settings.min;
-    document.getElementById('cfg-win').value = S.settings.numWinners;
+  if (id==='at-prizes')   renderPrizeRows();
+  if (id==='at-wheel')    renderWheelTab();
+  if (id==='at-settings') { document.getElementById('cfg-min').value=S.settings.min; document.getElementById('cfg-win').value=S.settings.numWinners; }
+}
+
+function safeSet(id, prop, val) {
+  const el = document.getElementById(id);
+  if (el) el[prop] = val;
+}
+
+function refreshCurrentPage() {
+  const active = document.querySelector('.page.active');
+  if (!active) return;
+  try {
+    if (active.id==='page-join') renderJoinPage();
+    else if (active.id==='page-admin') {
+      renderAdmin();
+      const wt = document.getElementById('at-wheel');
+      if (wt && wt.classList.contains('active')) renderWheelTab();
+    }
+  } catch(e) {
+    console.warn('refreshCurrentPage error:', e);
   }
 }
 
@@ -281,21 +382,25 @@ function aTab(btn, id) {
 function renderJoinPage() {
   const started = S.winners.length > 0;
   const done    = S.winners.length >= S.settings.numWinners;
-  document.getElementById('join-form-wrap').style.display = started ? 'none' : '';
-  document.getElementById('draw-closed-box').style.display = started ? '' : 'none';
-  if (started) {
-    document.getElementById('draw-closed-inner').innerHTML = `
+  const formWrap   = document.getElementById('join-form-wrap');
+  const closedBox  = document.getElementById('draw-closed-box');
+  const closedInner= document.getElementById('draw-closed-inner');
+  const countEl    = document.getElementById('join-count');
+  if (formWrap)  formWrap.style.display  = started ? 'none' : '';
+  if (closedBox) closedBox.style.display = started ? ''     : 'none';
+  if (started && closedInner) {
+    closedInner.innerHTML = `
       <div style="font-size:36px;margin-bottom:12px">${done?'🏆':'🔒'}</div>
       <div style="font-size:18px;font-weight:600;margin-bottom:8px">${done?'Draw complete!':'Draw in progress'}</div>
       <div style="font-size:14px;color:#666;line-height:1.6">${done?`All ${S.settings.numWinners} winners have been picked.`:'Registration is closed — the draw has already started!'}</div>
       <div style="margin-top:12px;font-size:13px;color:#888">${S.participants.length} people registered</div>`;
   }
-  updateJoinCount();
-}
-
-function updateJoinCount() {
-  const c = S.participants.length;
-  document.getElementById('join-count').innerHTML = c>0 ? `<strong style="color:#1D9E75">${c}</strong> ${c===1?'person has':'people have'} joined so far` : 'Be the first to join!';
+  if (countEl) {
+    const c = S.participants.length;
+    countEl.innerHTML = c>0
+      ? `<strong style="color:#1D9E75">${c}</strong> ${c===1?'person has':'people have'} joined so far`
+      : 'Be the first to join!';
+  }
 }
 
 function joinWheel() {
@@ -306,67 +411,62 @@ function joinWheel() {
   if (!name) { err.textContent='Please enter your name'; return; }
   if (S.participants.map(n=>n.toLowerCase()).includes(name.toLowerCase())) { err.textContent="You're already on the wheel! 🎡"; return; }
   err.textContent='';
-  S.participants.push(name); lsSave();
+  S.participants.push(name);
+  dbSave();
   inp.value='';
-  const flash = document.getElementById('join-flash');
-  document.getElementById('join-flash-name').textContent = name+' is on the wheel!';
+  const flash=document.getElementById('join-flash');
+  document.getElementById('join-flash-name').textContent=name+' is on the wheel!';
   flash.style.display='flex';
   setTimeout(()=>{ flash.style.display='none'; },3000);
-  updateJoinCount();
 }
-document.getElementById('join-name').addEventListener('keydown', e=>{ if(e.key==='Enter') joinWheel(); });
 
 // ── Admin: Participants ────────────────────────────────
 function renderAdmin() {
-  document.getElementById('st-total').textContent   = S.participants.length;
-  document.getElementById('st-min').textContent     = S.settings.min;
-  document.getElementById('st-winners').textContent = S.settings.numWinners;
-  const grid = document.getElementById('name-grid');
-  const nope = document.getElementById('no-names');
+  safeSet('st-total',   'textContent', S.participants.length);
+  safeSet('st-min',     'textContent', S.settings.min);
+  safeSet('st-winners', 'textContent', S.settings.numWinners);
+  const grid=document.getElementById('name-grid'), nope=document.getElementById('no-names');
+  if (!grid || !nope) return;
   if (!S.participants.length) { grid.innerHTML=''; nope.style.display=''; return; }
   nope.style.display='none';
-  grid.innerHTML = S.participants.map(n=>{
-    const won = S.winners.includes(n);
+  grid.innerHTML=S.participants.map(n=>{
+    const won=S.winners.includes(n);
     return `<span class="nametag${won?' won':''}">${n}${won?' ✓':''}</span>`;
   }).join('');
 }
 
 function addParticipant() {
-  const inp = document.getElementById('add-name');
-  const n   = inp.value.trim();
-  if (!n || S.participants.map(x=>x.toLowerCase()).includes(n.toLowerCase())) return;
-  S.participants.push(n); lsSave(); inp.value=''; renderAdmin();
+  const inp=document.getElementById('add-name'), n=inp.value.trim();
+  if (!n||S.participants.map(x=>x.toLowerCase()).includes(n.toLowerCase())) return;
+  S.participants.push(n); dbSave(); inp.value=''; renderAdmin();
 }
 
-let clearConfirming = false;
+let clearConfirming=false;
 function startClear() {
-  if (!clearConfirming) {
-    clearConfirming = true;
-    document.getElementById('clear-wrap').innerHTML = `
-      <span style="font-size:12px;color:#666;margin-right:6px">Are you sure?</span>
-      <button class="btn btn-d" style="font-size:11px;padding:4px 10px;margin-right:4px" onclick="doClear()">Yes, clear</button>
-      <button class="btn" style="font-size:11px;padding:4px 10px" onclick="cancelClear()">Cancel</button>`;
-  }
+  if (clearConfirming) return;
+  clearConfirming=true;
+  document.getElementById('clear-wrap').innerHTML=`
+    <span style="font-size:12px;color:#666;margin-right:6px">Are you sure?</span>
+    <button class="btn btn-d" style="font-size:11px;padding:4px 10px;margin-right:4px" onclick="doClear()">Yes, clear</button>
+    <button class="btn" style="font-size:11px;padding:4px 10px" onclick="cancelClear()">Cancel</button>`;
 }
 function doClear() {
   S.participants=[]; S.winners=[]; S.prizeResults={};
-  lsSave(); clearConfirming=false;
-  document.getElementById('clear-wrap').innerHTML = `<button class="btn btn-d" style="font-size:11px;padding:4px 10px" onclick="startClear()">Clear all</button>`;
-  renderAdmin();
-  // Also reset wheel tab visuals
+  dbSave(); clearConfirming=false;
+  document.getElementById('clear-wrap').innerHTML=`<button class="btn btn-d" style="font-size:11px;padding:4px 10px" onclick="startClear()">Clear all</button>`;
   document.getElementById('results-wrap').style.display='none';
   document.getElementById('results-list').innerHTML='';
   document.getElementById('spin-msg').textContent='';
-  renderWheelTab();
+  renderAdmin(); renderWheelTab();
 }
 function cancelClear() {
   clearConfirming=false;
-  document.getElementById('clear-wrap').innerHTML = `<button class="btn btn-d" style="font-size:11px;padding:4px 10px" onclick="startClear()">Clear all</button>`;
+  document.getElementById('clear-wrap').innerHTML=`<button class="btn btn-d" style="font-size:11px;padding:4px 10px" onclick="startClear()">Clear all</button>`;
 }
 
 // ── Admin: Prizes ──────────────────────────────────────
 function renderPrizeRows() {
-  document.getElementById('prize-rows').innerHTML = S.prizes.map((p,i)=>`
+  document.getElementById('prize-rows').innerHTML=S.prizes.map((p,i)=>`
     <div class="prow">
       <span style="font-size:12px;color:#888;min-width:22px">${i+1}.</span>
       <input type="text" id="pi-${i}" value="${p.replace(/"/g,'&quot;')}" style="margin:0" />
@@ -376,27 +476,26 @@ function renderPrizeRows() {
 function addPrizeRow() { S.prizes.push('New Prize 🎁'); renderPrizeRows(); }
 function removePrize(i) { S.prizes.splice(i,1); renderPrizeRows(); }
 function savePrizes() {
-  S.prizes = S.prizes.map((_,i)=>document.getElementById(`pi-${i}`).value.trim()).filter(Boolean);
-  lsSave();
+  S.prizes=S.prizes.map((_,i)=>document.getElementById(`pi-${i}`).value.trim()).filter(Boolean);
+  dbSave();
   const m=document.getElementById('prize-saved'); m.textContent='Saved!'; setTimeout(()=>m.textContent='',2000);
 }
 
 // ── Admin: Settings ────────────────────────────────────
 function saveSettings() {
-  S.settings.min         = parseInt(document.getElementById('cfg-min').value)||3;
-  S.settings.numWinners  = parseInt(document.getElementById('cfg-win').value)||15;
-  const p = document.getElementById('cfg-pass').value;
-  if (p) S.settings.adminPass=p;
-  lsSave(); renderAdmin();
+  S.settings.min=parseInt(document.getElementById('cfg-min').value)||3;
+  S.settings.numWinners=parseInt(document.getElementById('cfg-win').value)||15;
+  const p=document.getElementById('cfg-pass').value; if(p) S.settings.adminPass=p;
+  dbSave(); renderAdmin();
   const m=document.getElementById('cfg-saved'); m.textContent='Saved!'; setTimeout(()=>m.textContent='',2000);
 }
 
-// ── Wheel drawing ──────────────────────────────────────
-let wheelAngle = 0, idleRaf = null, isSpinning = false;
+// ── Wheel ──────────────────────────────────────────────
+let wheelAngle=0, idleRaf=null, isSpinning=false;
 
 function drawWheel(names) {
-  const canvas = document.getElementById('main-wheel');
-  if (!canvas || !names.length) return;
+  const canvas=document.getElementById('main-wheel');
+  if (!canvas||!names.length) return;
   const ctx=canvas.getContext('2d'), sz=canvas.width, cx=sz/2, cy=sz/2, r=sz/2-4;
   const sl=(2*Math.PI)/names.length;
   ctx.clearRect(0,0,sz,sz);
@@ -406,7 +505,7 @@ function drawWheel(names) {
     ctx.fillStyle=WC[i%WC.length]; ctx.fill();
     ctx.save(); ctx.translate(cx,cy); ctx.rotate(s+sl/2);
     ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='500 11px sans-serif';
-    ctx.fillText(n.length>13?n.slice(0,12)+'…':n, r-8, 4);
+    ctx.fillText(n.length>13?n.slice(0,12)+'…':n,r-8,4);
     ctx.restore();
   });
   ctx.beginPath(); ctx.arc(cx,cy,20,0,2*Math.PI); ctx.fillStyle='#fff'; ctx.fill();
@@ -420,22 +519,19 @@ function startIdleSpin() {
   if (idleRaf) cancelAnimationFrame(idleRaf);
   function loop() {
     if (isSpinning) return;
-    wheelAngle += 0.004;
-    drawWheel(getPool().length ? getPool() : (S.participants.length ? ['All done!'] : ['Waiting…']));
-    idleRaf = requestAnimationFrame(loop);
+    wheelAngle+=0.004;
+    const pool=getPool();
+    drawWheel(pool.length?pool:(S.participants.length?['All done!']:['Waiting…']));
+    idleRaf=requestAnimationFrame(loop);
   }
-  idleRaf = requestAnimationFrame(loop);
+  idleRaf=requestAnimationFrame(loop);
 }
 
 function renderWheelTab() {
-  const tot   = S.participants.length;
-  const min   = S.settings.min;
-  const numW  = S.settings.numWinners;
-  const ready = tot >= min;
-  const done  = S.winners.length >= numW;
-  const rem   = S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
-
-  document.getElementById('wheel-status').innerHTML = `
+  const tot=S.participants.length, min=S.settings.min, numW=S.settings.numWinners;
+  const ready=tot>=min, done=S.winners.length>=numW;
+  const rem=S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
+  document.getElementById('wheel-status').innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div>
         <strong style="font-size:13px">${done?'✅ All winners picked!':ready?'✅ Ready to spin!':'⏳ Waiting for participants'}</strong>
@@ -443,164 +539,120 @@ function renderWheelTab() {
       </div>
       <span style="padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;background:${ready?'#EAF3DE':'#FAEEDA'};color:${ready?'#3B6D11':'#854F0B'}">${ready?'Ready':`Need ${min-tot} more`}</span>
     </div>`;
-
-  const spinBtn = document.getElementById('spin-btn');
-  spinBtn.disabled = !ready || isSpinning || done;
-  spinBtn.textContent = done ? '✅ All done' : `🎡 Spin (${S.winners.length}/${numW})`;
-
-  // Results
-  if (S.winners.length > 0) {
+  const sb=document.getElementById('spin-btn');
+  sb.disabled=!ready||isSpinning||done;
+  sb.textContent=done?'✅ All done':`🎡 Spin (${S.winners.length}/${numW})`;
+  if (S.winners.length>0) {
     document.getElementById('results-wrap').style.display='';
-    document.getElementById('results-list').innerHTML = S.winners.map((w,i)=>`
+    document.getElementById('results-list').innerHTML=S.winners.map((w,i)=>`
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:#f5f5f3;border-radius:8px">
         <span style="font-size:12px;color:#888;min-width:22px">${i+1}.</span>
         <span style="font-size:13px;font-weight:500;flex:1">${w}</span>
         <span style="background:#EAF3DE;color:#27500A;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:500">${S.prizeResults[w]||'⏳'}</span>
       </div>`).join('');
   }
-
   startIdleSpin();
 }
 
-// ── Spin ───────────────────────────────────────────────
 function doSpin() {
   if (isSpinning) return;
-  const pool = getPool();
-  if (!pool.length) return;
+  const pool=getPool(); if (!pool.length) return;
   if (idleRaf) { cancelAnimationFrame(idleRaf); idleRaf=null; }
-
-  isSpinning = true;
-  document.getElementById('spin-btn').disabled = true;
-  document.getElementById('spin-msg').textContent = '';
-
-  const wi     = Math.floor(Math.random() * pool.length);
-  const winner = pool[wi];
-  const sl     = (2*Math.PI) / pool.length;
-
-  // Land winner slice centre under right-hand pointer (angle 0)
-  const fullSpins    = (8 + Math.floor(Math.random()*4)) * 2*Math.PI;
-  const targetOffset = -(wi*sl + sl/2);
-  const finalAngle   = wheelAngle + fullSpins + ((targetOffset - wheelAngle) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
-
-  const names = [...pool];
-  let t0 = null;
-  (function tick(ts) {
+  isSpinning=true;
+  document.getElementById('spin-btn').disabled=true;
+  document.getElementById('spin-msg').textContent='';
+  const wi=Math.floor(Math.random()*pool.length), winner=pool[wi];
+  const sl=(2*Math.PI)/pool.length;
+  const fullSpins=(8+Math.floor(Math.random()*4))*2*Math.PI;
+  const targetOffset=-(wi*sl+sl/2);
+  const finalAngle=wheelAngle+fullSpins+((targetOffset-wheelAngle)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const names=[...pool];
+  let t0=null;
+  (function tick(ts){
     if (!t0) t0=ts;
-    const p    = Math.min((ts-t0)/4500, 1);
-    const ease = 1 - Math.pow(1-p, 4);
-    wheelAngle = wheelAngle + ease*(finalAngle-wheelAngle);
-    // recalculate each frame from the start to avoid drift
-    const cur = wheelAngle + ease*(finalAngle-wheelAngle);
+    const p=Math.min((ts-t0)/4500,1), ease=1-Math.pow(1-p,4);
+    wheelAngle=wheelAngle+ease*(finalAngle-wheelAngle);
     drawWheel(names);
-    if (p < 1) { requestAnimationFrame(tick); return; }
-
-    wheelAngle  = finalAngle;
-    isSpinning  = false;
-    document.getElementById('spin-msg').textContent = `🎉 ${winner} is a winner!`;
-
-    // Add winner to state immediately
-    S.winners.push(winner); lsSave();
-
-    // Open prize modal
+    if (p<1){requestAnimationFrame(tick);return;}
+    wheelAngle=finalAngle; isSpinning=false;
+    document.getElementById('spin-msg').textContent=`🎉 ${winner} is a winner!`;
+    S.winners.push(winner); dbSave();
     openPrizeModal(winner);
   })(performance.now());
 }
 
 // ── Prize modal ────────────────────────────────────────
-let prizePhase = 'ready', prizeResult = null, prizeWinner = '';
+let prizePhase='ready', prizeResult=null, prizeWinner='';
 
 function openPrizeModal(winner) {
-  prizePhase  = 'ready';
-  prizeResult = null;
-  prizeWinner = winner;
-  document.getElementById('modal-winner').textContent = winner;
-  document.getElementById('prize-display').className  = 'prize-display';
-  document.getElementById('prize-display-inner').innerHTML = '<div style="font-size:14px;color:#aaa">Your prize is waiting…</div>';
-  document.getElementById('prizes-remaining').style.display = 'none';
-  document.getElementById('modal-btn').textContent  = '🎰 Reveal my prize!';
-  document.getElementById('modal-btn').disabled     = false;
+  prizePhase='ready'; prizeResult=null; prizeWinner=winner;
+  document.getElementById('modal-winner').textContent=winner;
+  document.getElementById('prize-display').className='prize-display';
+  document.getElementById('prize-display-inner').innerHTML='<div style="font-size:14px;color:#aaa">Your prize is waiting…</div>';
+  document.getElementById('prizes-remaining').style.display='none';
+  document.getElementById('modal-btn').textContent='🎰 Reveal my prize!';
+  document.getElementById('modal-btn').disabled=false;
   document.getElementById('prize-modal').classList.add('open');
 }
 
 function modalAction() {
-  if (prizePhase === 'ready')   startPrizeSpin();
-  else if (prizePhase === 'done') claimPrize();
+  if (prizePhase==='ready') startPrizeSpin();
+  else if (prizePhase==='done') claimPrize();
 }
 
 function startPrizeSpin() {
-  const remaining = S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
+  const remaining=S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
   if (!remaining.length) return;
-  prizePhase = 'spinning';
-  document.getElementById('modal-btn').disabled   = true;
-  document.getElementById('modal-btn').textContent = 'Shuffling…';
-
-  const picked   = remaining[Math.floor(Math.random()*remaining.length)];
-  const duration = 2800;
-  const start    = performance.now();
-  let lastFlip   = 0;
-
-  (function tick(now) {
-    const elapsed  = now - start;
-    const progress = Math.min(elapsed/duration, 1);
-    const interval = 55 + progress*progress*260;
-    if (now - lastFlip > interval) {
-      lastFlip = now;
-      const shown = progress > 0.9 ? picked : remaining[Math.floor(Math.random()*remaining.length)];
-      document.getElementById('prize-display-inner').innerHTML =
+  prizePhase='spinning';
+  document.getElementById('modal-btn').disabled=true;
+  document.getElementById('modal-btn').textContent='Shuffling…';
+  const picked=remaining[Math.floor(Math.random()*remaining.length)];
+  const duration=2800, start=performance.now(); let lastFlip=0;
+  (function tick(now){
+    const elapsed=now-start, progress=Math.min(elapsed/duration,1);
+    const interval=55+progress*progress*260;
+    if (now-lastFlip>interval) {
+      lastFlip=now;
+      const shown=progress>0.9?picked:remaining[Math.floor(Math.random()*remaining.length)];
+      document.getElementById('prize-display-inner').innerHTML=
         `<div style="font-size:11px;color:#888;margin-bottom:6px;letter-spacing:1px">SHUFFLING PRIZES</div>
          <div style="font-size:17px;font-weight:500;filter:blur(${progress>0.85?'0':'0.8'}px);color:#1a1a18">${shown}</div>`;
     }
-    if (progress < 1) { requestAnimationFrame(tick); return; }
-
-    prizePhase  = 'done';
-    prizeResult = picked;
-    document.getElementById('prize-display').className = 'prize-display done';
-    document.getElementById('prize-display-inner').innerHTML =
+    if (progress<1){requestAnimationFrame(tick);return;}
+    prizePhase='done'; prizeResult=picked;
+    document.getElementById('prize-display').className='prize-display done';
+    document.getElementById('prize-display-inner').innerHTML=
       `<div style="font-size:11px;color:#1D9E75;margin-bottom:6px;letter-spacing:1px;font-weight:500">YOUR PRIZE</div>
        <div style="font-size:20px;font-weight:600;color:#27500A">${picked}</div>`;
-    const rem = remaining.length - 1;
-    const remEl = document.getElementById('prizes-remaining');
-    remEl.textContent = `${rem} prize${rem!==1?'s':''} remaining`;
-    remEl.style.display = '';
-    document.getElementById('modal-btn').textContent = 'Claim & continue →';
-    document.getElementById('modal-btn').disabled    = false;
+    const rem=remaining.length-1;
+    const remEl=document.getElementById('prizes-remaining');
+    remEl.textContent=`${rem} prize${rem!==1?'s':''} remaining`; remEl.style.display='';
+    document.getElementById('modal-btn').textContent='Claim & continue →';
+    document.getElementById('modal-btn').disabled=false;
   })(performance.now());
 }
 
 function claimPrize() {
-  S.prizeResults[prizeWinner] = prizeResult;
-  lsSave();
+  S.prizeResults[prizeWinner]=prizeResult;
+  dbSave();
   document.getElementById('prize-modal').classList.remove('open');
-  renderWheelTab();
-  renderAdmin();
+  renderWheelTab(); renderAdmin();
 }
-
-// ── Cross-tab sync ────────────────────────────────────
-// When another tab writes to localStorage, reload state and refresh UI
-window.addEventListener('storage', function(e) {
-  if (e.key !== KEY) return;
-  lsLoad();
-  // Refresh whichever page is currently visible
-  const activePage = document.querySelector('.page.active');
-  if (!activePage) return;
-  if (activePage.id === 'page-join') {
-    renderJoinPage();
-  } else if (activePage.id === 'page-admin') {
-    renderAdmin();
-    // Also refresh wheel tab if it's active
-    const wheelTab = document.getElementById('at-wheel');
-    if (wheelTab && wheelTab.classList.contains('active')) renderWheelTab();
-  }
-});
 
 // ── Boot ───────────────────────────────────────────────
-lsLoad();
-renderJoinPage();
+// Firebase config hardcoded — no setup needed
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyByVv-L1saC9V1J4alHaqAELsPGUiq8rbE",
+  authDomain: "mayar-eid-activity.firebaseapp.com",
+  projectId: "mayar-eid-activity",
+  storageBucket: "mayar-eid-activity.firebasestorage.app",
+  messagingSenderId: "669678300175",
+  appId: "1:669678300175:web:adf1b187b138ab22d3077a",
+  databaseURL: "https://mayar-eid-activity-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
 
-// Handle ?admin in URL for direct admin access
-if (window.location.search.includes('admin') || window.location.hash.includes('admin')) {
-  showPage('page-login');
-}
+document.getElementById('setup-screen').style.display='none';
+initFirebase(FIREBASE_CONFIG);
 </script>
 </body>
 </html>
