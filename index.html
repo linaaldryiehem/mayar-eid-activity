@@ -274,6 +274,7 @@ let S = {
 
 let db = null;
 let dbRef = null;
+let dbReady = false; // prevents writes before initial data is loaded
 
 // ── Firebase setup ─────────────────────────────────────
 function getStoredConfig() {
@@ -317,12 +318,15 @@ function initFirebase(cfg) {
     dbRef.on('value', snapshot => {
       const data = snapshot.val();
       if (data) {
+        // Merge incoming data — never overwrite with empty defaults
         S = { ...S, ...data };
         S.participants  = Array.isArray(S.participants)  ? S.participants  : [];
         S.winners       = Array.isArray(S.winners)       ? S.winners       : [];
         S.prizeResults  = S.prizeResults  && typeof S.prizeResults  === 'object' ? S.prizeResults  : {};
         S.prizes        = Array.isArray(S.prizes)        ? S.prizes        : Array.from({length:15},(_,i)=>`Prize ${i+1} 🎁`);
       }
+      // Only allow writes after the first read — prevents overwriting existing data on load
+      dbReady = true;
       // Wait for DOM to be ready before refreshing
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', refreshCurrentPage);
@@ -341,7 +345,7 @@ function initFirebase(cfg) {
 }
 
 function dbSave() {
-  if (!dbRef) return;
+  if (!dbRef || !dbReady) return;
   dbRef.set(S);
 }
 
@@ -558,7 +562,7 @@ function startIdleSpin() {
 function renderWheelTab() {
   const tot=S.participants.length, min=S.settings.min, numW=S.settings.numWinners;
   const ready=tot>=min, done=S.winners.length>=numW;
-  const rem=S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
+  const rem=S.prizes.filter((_,i)=>!Object.values(S.prizeResults).includes(i));
   document.getElementById('wheel-status').innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div>
@@ -577,7 +581,7 @@ function renderWheelTab() {
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:#f5f5f3;border-radius:8px">
         <span style="font-size:12px;color:#888;min-width:22px">${i+1}.</span>
         <span style="font-size:13px;font-weight:500;flex:1">${w}</span>
-        <span style="background:#EAF3DE;color:#27500A;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:500">${S.prizeResults[w]||'⏳'}</span>
+        <span style="background:#EAF3DE;color:#27500A;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:500">${S.prizeResults[w]!==undefined ? S.prizes[S.prizeResults[w]] : '⏳'}</span>
       </div>`).join('');
   }
   startIdleSpin();
@@ -629,31 +633,39 @@ function modalAction() {
   else if (prizePhase==='done') claimPrize();
 }
 
+function getRemainingPrizeIndices() {
+  // Track by index so duplicate prize names work correctly
+  const usedIndices = Object.values(S.prizeResults); // array of used indices
+  return S.prizes.map((p,i) => i).filter(i => !usedIndices.includes(i));
+}
+
 function startPrizeSpin() {
-  const remaining=S.prizes.filter(p=>!Object.values(S.prizeResults).includes(p));
-  if (!remaining.length) return;
+  const remainingIndices = getRemainingPrizeIndices();
+  if (!remainingIndices.length) return;
+  const remainingNames = remainingIndices.map(i => S.prizes[i]);
   prizePhase='spinning';
   document.getElementById('modal-btn').disabled=true;
   document.getElementById('modal-btn').textContent='Shuffling…';
-  const picked=remaining[Math.floor(Math.random()*remaining.length)];
+  const pickedIdx = remainingIndices[Math.floor(Math.random()*remainingIndices.length)];
+  const picked = S.prizes[pickedIdx];
   const duration=2800, start=performance.now(); let lastFlip=0;
   (function tick(now){
     const elapsed=now-start, progress=Math.min(elapsed/duration,1);
     const interval=55+progress*progress*260;
     if (now-lastFlip>interval) {
       lastFlip=now;
-      const shown=progress>0.9?picked:remaining[Math.floor(Math.random()*remaining.length)];
+      const shown=progress>0.9?picked:remainingNames[Math.floor(Math.random()*remainingNames.length)];
       document.getElementById('prize-display-inner').innerHTML=
         `<div style="font-size:11px;color:#888;margin-bottom:6px;letter-spacing:1px">SHUFFLING PRIZES</div>
          <div style="font-size:17px;font-weight:500;filter:blur(${progress>0.85?'0':'0.8'}px);color:#1a1a18">${shown}</div>`;
     }
     if (progress<1){requestAnimationFrame(tick);return;}
-    prizePhase='done'; prizeResult=picked;
+    prizePhase='done'; prizeResult=pickedIdx;
     document.getElementById('prize-display').className='prize-display done';
     document.getElementById('prize-display-inner').innerHTML=
       `<div style="font-size:11px;color:#1D9E75;margin-bottom:6px;letter-spacing:1px;font-weight:500">YOUR PRIZE</div>
        <div style="font-size:20px;font-weight:600;color:#27500A">${picked}</div>`;
-    const rem=remaining.length-1;
+    const rem=remainingIndices.length-1;
     const remEl=document.getElementById('prizes-remaining');
     remEl.textContent=`${rem} prize${rem!==1?'s':''} remaining`; remEl.style.display='';
     document.getElementById('modal-btn').textContent='Claim & continue →';
@@ -662,7 +674,7 @@ function startPrizeSpin() {
 }
 
 function claimPrize() {
-  S.prizeResults[prizeWinner]=prizeResult;
+  S.prizeResults[prizeWinner] = prizeResult; // prizeResult is now the index
   dbSave();
   document.getElementById('prize-modal').classList.remove('open');
   renderWheelTab(); renderAdmin();
