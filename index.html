@@ -84,6 +84,11 @@ button{cursor:pointer;font-family:inherit}
           </div>
         </div>
 
+        <!-- Connecting banner — shown until Firebase is ready -->
+        <div id="connecting-banner" style="text-align:center;padding:10px;margin-bottom:12px;background:#faf8ff;border:1.5px solid rgba(149,97,169,.2);border-radius:10px;font-size:13px;color:#9561A9;font-weight:500">
+          ⏳ Connecting... please wait
+        </div>
+
         <div style="background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 4px 28px rgba(149,97,169,.10);border:1.5px solid rgba(149,97,169,.12)">
           <label style="font-size:13px;color:#666;font-weight:600;letter-spacing:.3px">YOUR FULL NAME</label>
           <input id="join-name" type="text" placeholder="e.g. Sara Ahmed" maxlength="40"
@@ -91,8 +96,8 @@ button{cursor:pointer;font-family:inherit}
             onfocus="this.style.borderColor='#9561A9'" onblur="this.style.borderColor='#ddd'"
             onkeydown="if(event.key==='Enter')joinWheel()" />
           <div id="join-err" style="font-size:12px;color:#E24B4A;min-height:16px;margin:4px 0 10px"></div>
-          <button class="btn" onclick="joinWheel()"
-            style="width:100%;padding:13px;font-size:15px;border-radius:10px;font-weight:700;background:linear-gradient(135deg,#9561A9,#7a4a90);color:#fff;border:none;box-shadow:0 4px 14px rgba(149,97,169,.35);letter-spacing:.3px">
+          <button id="join-btn" class="btn" onclick="joinWheel()" disabled
+            style="width:100%;padding:13px;font-size:15px;border-radius:10px;font-weight:700;background:linear-gradient(135deg,#9561A9,#7a4a90);color:#fff;border:none;box-shadow:0 4px 14px rgba(149,97,169,.35);letter-spacing:.3px;opacity:.45;cursor:not-allowed">
             Add me to the wheel! 🎉
           </button>
         </div>
@@ -327,6 +332,11 @@ function initFirebase(cfg) {
       }
       // Only allow writes after the first read — prevents overwriting existing data on load
       dbReady = true;
+      // Enable join button and hide connecting banner
+      const joinBtn = document.getElementById('join-btn');
+      const banner  = document.getElementById('connecting-banner');
+      if (joinBtn) { joinBtn.disabled = false; joinBtn.style.opacity = '1'; joinBtn.style.cursor = 'pointer'; }
+      if (banner)  { banner.style.display = 'none'; }
       // Wait for DOM to be ready before refreshing
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', refreshCurrentPage);
